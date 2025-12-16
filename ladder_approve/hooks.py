@@ -42,6 +42,11 @@ fixtures = [
             ["document_type", "in", ["Leave Application", "Expense Claim"]],
             ["name", "in", ["Leave Application", "Leave Application Rejected", "Leave Application Approved", "Expense Claim", "Expense Claim Rejected", "Expense Claim Approved"]]
         ]
+    },{
+        "doctype": "Workflow",
+        "filters": [
+            ["name", "=", "Employee Work Flow"]
+        ]
     }
 
 ]
@@ -165,6 +170,10 @@ permission_query_conditions = {
 # override_doctype_class = {
 # 	"ToDo": "custom_app.overrides.CustomToDo"
 # }
+
+override_doctype_class = {
+	"Employee": "ladder_approve.override.employee.Employee"
+}
 
 # Document Events
 # ---------------
