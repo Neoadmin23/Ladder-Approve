@@ -24,7 +24,7 @@ class Employee(Document):
         self.custom_created_by = frappe.session.user
 
     def after_insert(self):
-        """Auto assign to another HR User (if possible)"""
+        """Auto assign to another HR User (safe & non-blocking)"""
 
         hr_users = frappe.get_all(
             "Has Role",
@@ -32,13 +32,22 @@ class Employee(Document):
             pluck="parent"
         )
 
-        # Exclude creator
-        reviewers = [u for u in hr_users if u != self.custom_created_by]
+        reviewers = []
 
-        # Do NOT throw here – creation must succeed
+        for user in hr_users:
+            if user == self.custom_created_by:
+                continue
+
+            if frappe.db.exists("User", user):
+                reviewers.append(user)
+            else:
+                frappe.logger().warning(
+                    f"Invalid HR User found in Has Role: {user}"
+                )
+
         if not reviewers:
             frappe.logger().warning(
-                f"No alternate HR User found for Employee {self.name}"
+                f"No valid HR reviewer found for Employee {self.name}"
             )
             return
 
@@ -51,16 +60,17 @@ class Employee(Document):
         })
 
     def validate(self):
-        # Workflow enforcement
         self._handle_workflow_audit_fields()
 
+    # -------------------------
+    # WORKFLOW LOGIC
+    # -------------------------
 
     def _handle_workflow_audit_fields(self):
         prev_doc = self.get_doc_before_save()
         prev_state = prev_doc.workflow_state if prev_doc else STATE_DRAFT
         new_state = self.workflow_state or STATE_DRAFT
 
-        # No change → nothing to do
         if prev_state == new_state:
             return
 
@@ -71,9 +81,7 @@ class Employee(Document):
             self._validate_hr_user(current_user)
 
             if current_user == self.custom_created_by:
-                frappe.throw(
-                    "You cannot review an Employee you created."
-                )
+                frappe.throw("You cannot review an Employee you created.")
 
             self.custom_reviewed_by = current_user
 
@@ -88,6 +96,9 @@ class Employee(Document):
 
             self.custom_approved_by = current_user
 
+    # -------------------------
+    # ROLE VALIDATION
+    # -------------------------
 
     def _validate_hr_user(self, user):
         if not frappe.db.exists("Has Role", {
