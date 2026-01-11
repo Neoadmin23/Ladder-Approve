@@ -1,0 +1,29 @@
+{
+    "attach_print": 0,
+    "channel": "System Notification",
+    "condition": "doc.status==\"Draft\"",
+    "creation": "2026-01-11 21:40:11.411660",
+    "days_in_advance": 0,
+    "docstatus": 0,
+    "doctype": "Notification",
+    "document_type": "Employee",
+    "enabled": 1,
+    "event": "New",
+    "idx": 0,
+    "is_standard": 1,
+    "message": "<p><b>New Employee Created</b><br><br></p>\n\n<p>Employee: <b>{{ doc.employee_name }}</b><br>\nEmployee ID: {{ doc.name }}<br>\nStatus: Draft<br><br></p>\n\n<p>This employee record has been created and is ready for review.</p>\n",
+    "message_type": "Markdown",
+    "modified": "2026-01-11 21:49:10.647078",
+    "modified_by": "Administrator",
+    "module": "Ladder Approve",
+    "name": "Employee Creation",
+    "owner": "Administrator",
+    "recipients": [
+        {
+            "receiver_by_role": "HR User"
+        }
+    ],
+    "send_system_notification": 1,
+    "send_to_all_assignees": 1,
+    "subject": "Employee Pending Review {{ doc.name }}"
+}

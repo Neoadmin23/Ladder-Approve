@@ -1,0 +1,30 @@
+{
+    "attach_print": 0,
+    "channel": "System Notification",
+    "condition": "doc.workflow_state == \"Under Review\"",
+    "creation": "2026-01-11 21:52:35.606468",
+    "days_in_advance": 0,
+    "docstatus": 0,
+    "doctype": "Notification",
+    "document_type": "Employee",
+    "enabled": 1,
+    "event": "Value Change",
+    "idx": 0,
+    "is_standard": 1,
+    "message": "<b>Employee Waiting for Approval</b><br><br>\r\n\r\nEmployee: <b>{{ doc.employee_name }}</b><br>\r\nEmployee ID: {{ doc.name }}<br>\r\nCurrent Status: Under Review<br><br>\r\n\r\nThis employee has been reviewed and is waiting for your approval.\r\n",
+    "message_type": "Markdown",
+    "modified": "2026-01-11 21:52:40.405099",
+    "modified_by": "Administrator",
+    "module": "Ladder Approve",
+    "name": "Employee - Awaiting HR Approval",
+    "owner": "Administrator",
+    "recipients": [
+        {
+            "receiver_by_role": "HR User"
+        }
+    ],
+    "send_system_notification": 1,
+    "send_to_all_assignees": 1,
+    "subject": "Employee Awaiting Approval {{ doc.name }}",
+    "value_changed": "workflow_state"
+}
