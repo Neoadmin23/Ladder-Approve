@@ -78,23 +78,46 @@ def before_submit(doc, method):
 
 
 def leave_application_permission_query(user):
-    if not utils.is_feature_enabled(flag=None,doc_type="leave"):
-        return
+    if not utils.is_feature_enabled(flag=None, doc_type="leave"):
+        return ""
+
+    if not user:
+        return "1=0"
+
+    # Full access users
     if user == "Administrator":
         return ""
 
-    has_role = frappe.db.exists("Has Role", {
-        "parent": user,
-        "role": ["in", ["System Manager", "HR Manager"]]
-    })
+    has_role = frappe.db.exists(
+        "Has Role",
+        {
+            "parent": user,
+            "role": ["in", ["System Manager", "HR Manager"]]
+        }
+    )
 
     if has_role:
         return ""
 
-    return (
-        f"`tabLeave Application`.owner = '{user}'"
-        f" OR `tabLeave Application`.leave_approver = '{user}'"
-        f" OR `tabLeave Application`.custom_previous_approvers LIKE '%{user}%'"
+    # Employee linked to current user
+    employee = frappe.db.get_value(
+        "Employee",
+        {"user_id": user},
+        "name"
     )
+
+    conditions = [
+        f"`tabLeave Application`.owner = {frappe.db.escape(user)}",
+        f"`tabLeave Application`.leave_approver = {frappe.db.escape(user)}",
+        f"`tabLeave Application`.custom_previous_approvers LIKE '%{frappe.db.escape(user).strip(chr(39))}%'"
+    ]
+
+    # Employee should always see their own leave applications
+    if employee:
+        conditions.append(
+            f"`tabLeave Application`.employee = {frappe.db.escape(employee)}"
+        )
+
+    return " OR ".join(conditions)
 
 
